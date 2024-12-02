@@ -18,4 +18,8 @@ mongoose.connect('mongodb://127.0.0.1:27017/customerManagement', {
 const customerRoutes = require('./routes/customerRoutes');
 app.use('/api/customers', customerRoutes);
 
+const productRoutes = require('./routes/productRoutes');
+app.use('/api/products', productRoutes);
+
+
 app.listen(5000, () => console.log('Server running on http://localhost:5000'));
