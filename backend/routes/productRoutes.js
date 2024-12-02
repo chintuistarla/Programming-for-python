@@ -2,34 +2,36 @@ const express = require('express');
 const router = express.Router();
 const Product = require('../models/ProductModel');
 
-// Add a new product
+// Add a product
 router.post('/', async (req, res) => {
     try {
-        const product = new Product(req.body);
-        await product.save();
-        res.status(201).json({ message: 'Product added successfully', product });
+        const newProduct = new Product(req.body);
+        await newProduct.save();
+        res.status(201).json({ message: 'Product added successfully', product: newProduct });
     } catch (err) {
         res.status(400).json({ error: err.message });
     }
 });
 
-// Get all products
-router.get('/', async (req, res) => {
+// Get product by name
+router.get('/:name', async (req, res) => {
     try {
-        const products = await Product.find();
-        res.json(products);
+        const product = await Product.findOne({ name: req.params.name });
+        if (!product) return res.status(404).json({ message: 'Product not found' });
+        res.json(product);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(400).json({ error: err.message });
     }
 });
 
-// Update a product by ID
-router.put('/:id', async (req, res) => {
+// Update product by name
+router.put('/:name', async (req, res) => {
     try {
-        const updatedProduct = await Product.findByIdAndUpdate(req.params.id, req.body, {
-            new: true,
-            runValidators: true
-        });
+        const updatedProduct = await Product.findOneAndUpdate(
+            { name: req.params.name },
+            req.body,
+            { new: true }
+        );
         if (!updatedProduct) return res.status(404).json({ message: 'Product not found' });
         res.json({ message: 'Product updated successfully', product: updatedProduct });
     } catch (err) {
@@ -37,14 +39,14 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-// Delete a product by ID
-router.delete('/:id', async (req, res) => {
+// Delete product by name
+router.delete('/:name', async (req, res) => {
     try {
-        const deletedProduct = await Product.findByIdAndDelete(req.params.id);
+        const deletedProduct = await Product.findOneAndDelete({ name: req.params.name });
         if (!deletedProduct) return res.status(404).json({ message: 'Product not found' });
         res.json({ message: 'Product deleted successfully' });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(400).json({ error: err.message });
     }
 });
 
