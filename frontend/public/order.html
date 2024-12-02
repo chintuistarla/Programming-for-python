@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Management</title>
+    <header>
+        <h1>Order Management System</h1>
+    </header>
+    
+    <nav>
+        <a href="customer.html">Manage Customers</a>
+        <a href="product.html">Manage Products</a>
+        <a href="orders.html">Manage Orders</a>
+        <a href="billing.html">Manage Billing</a>
+    </nav>
+    <link rel="stylesheet" href="order.css">
+</head>
+<body>
+    <h1>Order Management System</h1>
+
+    <section>
+        <h2>Place Order</h2>
+        <form id="createForm">
+            <input type="text" id="product" placeholder="Product Name" required />
+            <input type="number" id="price" placeholder="Price" required />
+            <input type="number" id="quantity" placeholder="Quantity" required />
+            <input type="number" id="totalPrice" placeholder="Total Price" readonly />
+            <button type="submit">Create Order</button>
+        </form>
+    </section>
+
+    <section>
+        <h2>Edit Order Details</h2>
+        <form id="editForm">
+            <input type="text" id="editProduct" placeholder="Enter Product Name to Edit" required />
+            <button type="button" onclick="fetchOrder()">Fetch Details</button>
+            <div id="editDetails"></div>
+        </form>
+    </section>
+
+    <section>
+        <h2>Delete Order</h2>
+        <form id="deleteForm">
+            <input type="text" id="deleteProduct" placeholder="Enter Product Name to Delete" required />
+            <button type="submit">Delete Order</button>
+        </form>
+    </section>
+
+    <script>
+        // API Base URL
+        const apiBase = 'http://localhost:5000/api/orders';
+
+        // Calculate Total Price on Quantity/Price Input
+        document.getElementById('createForm').addEventListener('input', () => {
+            const price = parseFloat(document.getElementById('price').value) || 0;
+            const quantity = parseInt(document.getElementById('quantity').value, 10) || 0;
+            document.getElementById('totalPrice').value = price * quantity;
+        });
+
+        // Place Order
+        document.getElementById('createForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const order = {
+                product: document.getElementById('product').value,
+                price: parseFloat(document.getElementById('price').value),
+                quantity: parseInt(document.getElementById('quantity').value, 10),
+                totalPrice: parseFloat(document.getElementById('totalPrice').value),
+            };
+            const res = await fetch(apiBase, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(order),
+            });
+            alert((await res.json()).message);
+        };
+
+        // Fetch Order for Edit
+        async function fetchOrder() {
+            const product = document.getElementById('editProduct').value;
+            const res = await fetch(`${apiBase}/${product}`);
+            if (res.ok) {
+                const order = await res.json();
+                const details = `
+                    <input type="text" id="editOrderProduct" value="${order.product}" required />
+                    <input type="number" id="editPrice" value="${order.price}" required />
+                    <input type="number" id="editQuantity" value="${order.quantity}" required />
+                    <input type="number" id="editTotalPrice" value="${order.totalPrice}" readonly />
+                    <button type="button" onclick="updateOrder('${order.product}')">Update</button>
+                `;
+                document.getElementById('editDetails').innerHTML = details;
+
+                // Calculate Total Price in Edit Form
+                document.getElementById('editForm').addEventListener('input', () => {
+                    const price = parseFloat(document.getElementById('editPrice').value) || 0;
+                    const quantity = parseInt(document.getElementById('editQuantity').value, 10) || 0;
+                    document.getElementById('editTotalPrice').value = price * quantity;
+                });
+            } else {
+                alert('Order not found');
+            }
+        }
+
+        // Update Order
+        async function updateOrder(product) {
+            const updatedOrder = {
+                product: document.getElementById('editOrderProduct').value,
+                price: parseFloat(document.getElementById('editPrice').value),
+                quantity: parseInt(document.getElementById('editQuantity').value, 10),
+                totalPrice: parseFloat(document.getElementById('editTotalPrice').value),
+            };
+            const res = await fetch(`${apiBase}/${product}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedOrder),
+            });
+            alert((await res.json()).message);
+        }
+
+        // Delete Order
+        document.getElementById('deleteForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const product = document.getElementById('deleteProduct').value;
+            const res = await fetch(`${apiBase}/${product}`, {
+                method: 'DELETE',
+            });
+            alert((await res.json()).message);
+        };
+    </script>
+</body>
+</html>
