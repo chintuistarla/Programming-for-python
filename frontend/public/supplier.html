@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supplier Management</title>
+    <header>
+        <h1>Grocery Management System</h1>
+    </header>
+    
+    <nav>
+        <a href="customer.html">Manage Customers</a>
+        <a href="product.html">Manage Products</a>
+        <a href="order.html">Manage Orders</a>
+        <a href="supplier.html">Manage Suppliers</a>
+    </nav>
+    <link rel="stylesheet" href="supplier.css">
+</head>
+<body>
+    <h1>Supplier Management System</h1>
+
+    <section>
+        <h2>Register Supplier</h2>
+        <form id="createForm">
+            <input type="text" id="name" placeholder="Name" required />
+            <input type="email" id="email" placeholder="Email" required />
+            <input type="text" id="contact" placeholder="Contact Number" required />
+            <textarea id="productsSupplied" placeholder="Products Supplied (comma-separated)" required></textarea>
+            <button type="submit">Create</button>
+        </form>
+    </section>
+
+    <section>
+        <h2>Edit Supplier Details</h2>
+        <form id="editForm">
+            <input type="text" id="editName" placeholder="Enter Supplier Name to Edit" required />
+            <button type="button" onclick="fetchSupplier()">Fetch Details</button>
+            <div id="editDetails"></div>
+        </form>
+    </section>
+
+    <section>
+        <h2>Delete Supplier</h2>
+        <form id="deleteForm">
+            <input type="text" id="deleteName" placeholder="Enter Supplier Name to Delete" required />
+            <button type="submit">Delete</button>
+        </form>
+    </section>
+
+    <script>
+        // API Base URL
+        const apiBase = 'http://localhost:5000/api/suppliers';
+
+        // Create Supplier
+        document.getElementById('createForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const supplier = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                contact: document.getElementById('contact').value,
+                productsSupplied: document.getElementById('productsSupplied').value.split(',').map(p => p.trim()),
+            };
+            const res = await fetch(apiBase, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(supplier),
+            });
+            alert((await res.json()).message);
+        };
+
+        // Fetch Supplier for Edit
+        async function fetchSupplier() {
+            const name = document.getElementById('editName').value;
+            const res = await fetch(`${apiBase}/${name}`);
+            if (res.ok) {
+                const supplier = await res.json();
+                const details = `
+                    <input type="text" id="editSupplierName" value="${supplier.name}" required />
+                    <input type="email" id="editSupplierEmail" value="${supplier.email}" required />
+                    <input type="text" id="editSupplierContact" value="${supplier.contact}" required />
+                    <textarea id="editProductsSupplied">${supplier.productsSupplied.join(', ')}</textarea>
+                    <button type="button" onclick="updateSupplier('${supplier.name}')">Update</button>
+                `;
+                document.getElementById('editDetails').innerHTML = details;
+            } else {
+                alert('Supplier not found');
+            }
+        }
+
+        // Update Supplier
+        async function updateSupplier(name) {
+            const updatedSupplier = {
+                name: document.getElementById('editSupplierName').value,
+                email: document.getElementById('editSupplierEmail').value,
+                contact: document.getElementById('editSupplierContact').value,
+                productsSupplied: document.getElementById('editProductsSupplied').value.split(',').map(p => p.trim()),
+            };
+            const res = await fetch(`${apiBase}/${name}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedSupplier),
+            });
+            alert((await res.json()).message);
+        }
+
+        // Delete Supplier
+        document.getElementById('deleteForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('deleteName').value;
+            const res = await fetch(`${apiBase}/${name}`, {
+                method: 'DELETE',
+            });
+            alert((await res.json()).message);
+        };
+    </script>
+</body>
+</html>
