@@ -4,56 +4,131 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customer Management</title>
-    <link rel="stylesheet" href="customer.css">
-</head>
-<body>
     <header>
         <h1>Customer Management System</h1>
     </header>
+    
     <nav>
         <a href="customer.html">Manage Customers</a>
         <a href="product.html">Manage Products</a>
         <a href="orders.html">Manage Orders</a>
         <a href="billing.html">Manage Billing</a>
     </nav>
-
+    <link rel="stylesheet" href="customer.css">
+</head>
+<body>
     <h1>Customer Management System</h1>
-
+    
     <section>
-        <h2>Add Customer</h2>
-        <form id="addCustomerForm">
-            <input type="text" id="name" placeholder="Customer Name" required />
-            <input type="email" id="email" placeholder="Customer Email" required />
-            <input type="number" id="age" placeholder="Customer Age" required />
+        <h2>Register Customer</h2>
+        <form id="createCustomerForm">
+            <input type="text" id="name" placeholder="Name" required />
+            <input type="email" id="email" placeholder="Email" required />
             <select id="gender" required>
                 <option value="" disabled selected>Select Gender</option>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
             </select>
+            <input type="number" id="age" placeholder="Age" required />
+            <input type="text" id="phone" placeholder="Phone Number" required />
             <input type="text" id="occupation" placeholder="Occupation" />
             <textarea id="address" placeholder="Address"></textarea>
-            <input type="text" id="phone" placeholder="Phone Number" required />
-            <button type="submit">Add</button>
+            <button type="submit">Create</button>
         </form>
     </section>
 
     <section>
-        <h2>Edit Customer</h2>
+        <h2>Edit Customer Details</h2>
         <form id="editCustomerForm">
-            <input type="email" id="editEmail" placeholder="Enter Customer Email" required />
+            <input type="email" id="editEmail" placeholder="Enter Email" required />
             <button type="button" onclick="fetchCustomer()">Fetch Details</button>
             <div id="editCustomerDetails"></div>
         </form>
     </section>
 
     <section>
-        <h2>Delete Customer</h2>
+        <h2>Delete Customer Details</h2>
         <form id="deleteCustomerForm">
-            <input type="email" id="deleteEmail" placeholder="Enter Customer Email" required />
+            <input type="email" id="deleteEmail" placeholder="Enter Email" required />
             <button type="submit">Delete</button>
         </form>
     </section>
 
-    <script src="customer.js"></script>
+    <script>
+        // API Base URL
+        const apiBase = 'http://localhost:5000/api/customers';
+
+        // Create Customer
+        document.getElementById('createCustomerForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const customer = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                gender: document.getElementById('gender').value,
+                age: document.getElementById('age').value,
+                phone: document.getElementById('phone').value,
+                occupation: document.getElementById('occupation').value,
+                address: document.getElementById('address').value,
+            };
+            const res = await fetch(apiBase, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(customer),
+            });
+            alert((await res.json()).message);
+        };
+
+        // Fetch Customer for Edit
+        async function fetchCustomer() {
+            const email = document.getElementById('editEmail').value;
+            const res = await fetch(`${apiBase}/${email}`);
+            if (res.ok) {
+                const customer = await res.json();
+                const details = `
+                    <input type="text" id="editName" value="${customer.name}" required />
+                    <select id="editGender" required>
+                        <option value="Male" ${customer.gender === 'Male' ? 'selected' : ''}>Male</option>
+                        <option value="Female" ${customer.gender === 'Female' ? 'selected' : ''}>Female</option>
+                    </select>
+                    <input type="number" id="editAge" value="${customer.age}" required />
+                    <input type="text" id="editPhone" value="${customer.phone}" required />
+                    <input type="text" id="editOccupation" value="${customer.occupation}" />
+                    <textarea id="editAddress">${customer.address}</textarea>
+                    <button type="button" onclick="updateCustomer('${customer.email}')">Update</button>
+                `;
+                document.getElementById('editCustomerDetails').innerHTML = details;
+            } else {
+                alert('Customer not found');
+            }
+        }
+
+        // Update Customer
+        async function updateCustomer(email) {
+            const updatedCustomer = {
+                name: document.getElementById('editName').value,
+                gender: document.getElementById('editGender').value,
+                age: document.getElementById('editAge').value,
+                phone: document.getElementById('editPhone').value,
+                occupation: document.getElementById('editOccupation').value,
+                address: document.getElementById('editAddress').value,
+            };
+            const res = await fetch(`${apiBase}/${email}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedCustomer),
+            });
+            alert((await res.json()).message);
+        }
+
+        // Delete Customer
+        document.getElementById('deleteCustomerForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('deleteEmail').value;
+            const res = await fetch(`${apiBase}/${email}`, {
+                method: 'DELETE',
+            });
+            alert((await res.json()).message);
+        };
+    </script>
 </body>
 </html>

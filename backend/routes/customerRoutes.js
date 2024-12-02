@@ -1,17 +1,22 @@
 const express = require('express');
 const router = express.Router();
-const Customer = require('../models/Customer');
+const Customer = require('../models/CustomerModel');
 
 // Create Customer
 router.post('/', async (req, res) => {
+    console.log("Request Body: ", req.body); // Log request body
+
     try {
         const newCustomer = new Customer(req.body);
         await newCustomer.save();
+        console.log("Customer saved successfully."); // Log success
         res.status(201).json({ message: 'Customer added successfully', customer: newCustomer });
     } catch (err) {
+        console.error("Error saving customer: ", err.message); // Log errors
         res.status(400).json({ error: err.message });
     }
 });
+
 
 // Get Customer by Email
 router.get('/:email', async (req, res) => {
