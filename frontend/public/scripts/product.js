@@ -1,71 +1,99 @@
 const apiUrl = 'http://localhost:5000/api/products'; // Your API endpoint
 
-// Add a new product
-document.getElementById('addProductForm').onsubmit = async (e) => {
-    e.preventDefault();
+// Fetch and display all products in the table
+async function fetchProducts() {
+    try {
+        const response = await fetch(apiUrl); // Fetch product data from backend
+        if (response.ok) {
+            const products = await response.json(); // Parse JSON response
 
-    const productData = {
-        name: document.getElementById('productName').value,
-        description: document.getElementById('productDescription').value,
-        price: parseFloat(document.getElementById('productPrice').value),
-        stock: parseInt(document.getElementById('productStock').value, 10),
-    };
+            const tableBody = document.getElementById('product-table-body');
+            tableBody.innerHTML = ''; // Clear the current rows in the table
 
-    const res = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(productData),
-    });
-
-    alert((await res.json()).message);
-    document.getElementById('addProductForm').reset();
-};
-
-// Fetch product for editing
-async function fetchProduct() {
-    const productName = document.getElementById('editProductName').value;
-    const res = await fetch(`${apiUrl}/${productName}`);
-    if (res.ok) {
-        const product = await res.json();
-        const details = `
-            <input type="text" id="editName" value="${product.name}" required />
-            <textarea id="editDescription">${product.description || ''}</textarea>
-            <input type="number" id="editPrice" value="${product.price}" required />
-            <input type="number" id="editStock" value="${product.stock}" required />
-            <button type="button" onclick="updateProduct('${product.name}')">Update</button>
-        `;
-        document.getElementById('editProductDetails').innerHTML = details;
-    } else {
-        alert('Product not found');
+            if (products.length > 0) {
+                // Loop through products and display them in the table
+                products.forEach(product => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${product._id}</td>
+                        <td>${product.name}</td>
+                        <td>${product.description || 'N/A'}</td>
+                        <td>${product.price}</td>
+                        <td>${product.stock}</td>
+                        <td>
+                            <button onclick="editProduct('${product._id}')">Edit</button>
+                            <button onclick="deleteProduct('${product._id}')">Delete</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row); // Append the new row to the table
+                });
+            } else {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="6">No products found.</td>`;
+                tableBody.appendChild(row);
+            }
+        } else {
+            console.error('Error fetching products:', response.statusText);
+        }
+    } catch (error) {
+        console.error('Error fetching products:', error);
     }
 }
 
-// Update product details
-async function updateProduct(name) {
-    const updatedProduct = {
-        name: document.getElementById('editName').value,
-        description: document.getElementById('editDescription').value,
-        price: parseFloat(document.getElementById('editPrice').value),
-        stock: parseInt(document.getElementById('editStock').value, 10),
+// Add or update a product
+async function saveProduct(event) {
+    event.preventDefault();
+
+    const productId = document.getElementById('product-id').value;
+    const productData = {
+        name: document.getElementById('name').value,
+        description: document.getElementById('description').value,
+        price: parseFloat(document.getElementById('price').value),
+        stock: parseInt(document.getElementById('stock').value, 10),
     };
 
-    const res = await fetch(`${apiUrl}/${name}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedProduct),
-    });
+    if (productId) {
+        // Update existing product
+        await fetch(`${apiUrl}/${productId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(productData),
+        });
+    } else {
+        // Add new product
+        await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(productData),
+        });
+    }
 
-    alert((await res.json()).message);
+    document.getElementById('product-form').reset(); // Reset form
+    fetchProducts(); // Fetch updated data to update table
 }
 
 // Delete a product
-document.getElementById('deleteProductForm').onsubmit = async (e) => {
-    e.preventDefault();
-    const productName = document.getElementById('deleteProductName').value;
+async function deleteProduct(id) {
+    if (confirm('Are you sure you want to delete this product?')) {
+        await fetch(`${apiUrl}/${id}`, { method: 'DELETE' });
+        fetchProducts(); // Fetch updated data to refresh the table
+    }
+}
 
-    const res = await fetch(`${apiUrl}/${productName}`, {
-        method: 'DELETE',
-    });
+// Populate the form for editing
+async function editProduct(id) {
+    const response = await fetch(`${apiUrl}/${id}`);
+    const product = await response.json();
 
-    alert((await res.json()).message);
-};
+    document.getElementById('product-id').value = product._id;
+    document.getElementById('name').value = product.name;
+    document.getElementById('description').value = product.description || '';
+    document.getElementById('price').value = product.price;
+    document.getElementById('stock').value = product.stock;
+}
+
+// Initialize event listeners
+document.getElementById('product-form').addEventListener('submit', saveProduct);
+
+// Fetch and display products on page load
+fetchProducts();

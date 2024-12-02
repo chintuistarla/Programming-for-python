@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Management</title>
     <header>
-        <h1>Product Management System</h1>
+        <h1>Grocery Management System</h1>
     </header>
+    
     <nav>
         <a href="customer.html">Manage Customers</a>
         <a href="product.html">Manage Products</a>
@@ -17,35 +18,100 @@
 </head>
 <body>
     <h1>Product Management System</h1>
-
+    
     <section>
         <h2>Add Product</h2>
-        <form id="addProductForm">
-            <input type="text" id="productName" placeholder="Product Name" required />
-            <textarea id="productDescription" placeholder="Product Description"></textarea>
-            <input type="number" id="productPrice" placeholder="Price" required />
-            <input type="number" id="productStock" placeholder="Stock Quantity" required />
+        <form id="createForm">
+            <input type="text" id="name" placeholder="Product Name" required />
+            <textarea id="description" placeholder="Product Description"></textarea>
+            <input type="number" id="price" placeholder="Price" required />
+            <input type="number" id="stock" placeholder="Stock Quantity" required />
             <button type="submit">Add Product</button>
         </form>
     </section>
 
     <section>
-        <h2>Edit Product</h2>
-        <form id="editProductForm">
-            <input type="text" id="editProductName" placeholder="Enter Product Name to Edit" required />
+        <h2>Edit Product Details</h2>
+        <form id="editForm">
+            <input type="text" id="editName" placeholder="Enter Product Name to Edit" required />
             <button type="button" onclick="fetchProduct()">Fetch Details</button>
-            <div id="editProductDetails"></div>
+            <div id="editDetails"></div>
         </form>
     </section>
 
     <section>
         <h2>Delete Product</h2>
-        <form id="deleteProductForm">
-            <input type="text" id="deleteProductName" placeholder="Enter Product Name to Delete" required />
+        <form id="deleteForm">
+            <input type="text" id="deleteName" placeholder="Enter Product Name to Delete" required />
             <button type="submit">Delete Product</button>
         </form>
     </section>
 
-    <script src="product.js"></script>
+    <script>
+        // API Base URL
+        const apiBase = 'http://localhost:5000/api/products';
+
+        // Add Product
+        document.getElementById('createForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const product = {
+                name: document.getElementById('name').value,
+                description: document.getElementById('description').value,
+                price: parseFloat(document.getElementById('price').value),
+                stock: parseInt(document.getElementById('stock').value, 10),
+            };
+            const res = await fetch(apiBase, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(product),
+            });
+            alert((await res.json()).message);
+        };
+
+        // Fetch Product for Edit
+        async function fetchProduct() {
+            const name = document.getElementById('editName').value;
+            const res = await fetch(`${apiBase}/${name}`);
+            if (res.ok) {
+                const product = await res.json();
+                const details = `
+                    <input type="text" id="editProductName" value="${product.name}" required />
+                    <textarea id="editDescription">${product.description || ''}</textarea>
+                    <input type="number" id="editPrice" value="${product.price}" required />
+                    <input type="number" id="editStock" value="${product.stock}" required />
+                    <button type="button" onclick="updateProduct('${product.name}')">Update</button>
+                `;
+                document.getElementById('editDetails').innerHTML = details;
+            } else {
+                alert('Product not found');
+            }
+        }
+
+        // Update Product
+        async function updateProduct(name) {
+            const updatedProduct = {
+                name: document.getElementById('editProductName').value,
+                description: document.getElementById('editDescription').value,
+                price: parseFloat(document.getElementById('editPrice').value),
+                stock: parseInt(document.getElementById('editStock').value, 10),
+            };
+            const res = await fetch(`${apiBase}/${name}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedProduct),
+            });
+            alert((await res.json()).message);
+        }
+
+        // Delete Product
+        document.getElementById('deleteForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('deleteName').value;
+            const res = await fetch(`${apiBase}/${name}`, {
+                method: 'DELETE',
+            });
+            alert((await res.json()).message);
+        };
+    </script>
 </body>
 </html>

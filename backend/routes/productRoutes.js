@@ -2,18 +2,18 @@ const express = require('express');
 const router = express.Router();
 const Product = require('../models/ProductModel');
 
-// Add a product
+// Create Product
 router.post('/', async (req, res) => {
     try {
         const newProduct = new Product(req.body);
         await newProduct.save();
-        res.status(201).json({ message: 'Product added successfully', product: newProduct });
+        res.status(201).json({ message: 'Product created successfully', product: newProduct });
     } catch (err) {
         res.status(400).json({ error: err.message });
     }
 });
 
-// Get product by name
+// Get Product by Name
 router.get('/:name', async (req, res) => {
     try {
         const product = await Product.findOne({ name: req.params.name });
@@ -24,7 +24,7 @@ router.get('/:name', async (req, res) => {
     }
 });
 
-// Update product by name
+// Update Product by Name
 router.put('/:name', async (req, res) => {
     try {
         const updatedProduct = await Product.findOneAndUpdate(
@@ -39,7 +39,7 @@ router.put('/:name', async (req, res) => {
     }
 });
 
-// Delete product by name
+// Delete Product by Name
 router.delete('/:name', async (req, res) => {
     try {
         const deletedProduct = await Product.findOneAndDelete({ name: req.params.name });
