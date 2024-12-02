@@ -1,52 +1,52 @@
-const express = require("express");
-const Customer = require("../models/Customer");
+const express = require('express');
 const router = express.Router();
+const Customer = require('../models/Customer');
 
-// Create a new customer
-router.post("/add", async (req, res) => {
+// Create Customer
+router.post('/', async (req, res) => {
     try {
-        const customer = new Customer(req.body);
-        await customer.save();
-        res.status(201).send({ message: "Customer added successfully" });
+        const newCustomer = new Customer(req.body);
+        await newCustomer.save();
+        res.status(201).json({ message: 'Customer added successfully', customer: newCustomer });
     } catch (err) {
-        res.status(400).send({ error: err.message });
+        res.status(400).json({ error: err.message });
     }
 });
 
-// Get customer by email
-router.get("/get/:email", async (req, res) => {
+// Get Customer by Email
+router.get('/:email', async (req, res) => {
     try {
         const customer = await Customer.findOne({ email: req.params.email });
-        if (!customer) return res.status(404).send({ message: "Customer not found" });
-        res.send(customer);
+        if (!customer) return res.status(404).json({ message: 'Customer not found' });
+        res.json(customer);
     } catch (err) {
-        res.status(500).send({ error: err.message });
+        res.status(400).json({ error: err.message });
     }
 });
 
-// Update customer details
-router.put("/update/:email", async (req, res) => {
+// Update Customer by Email
+router.put('/:email', async (req, res) => {
     try {
         const updatedCustomer = await Customer.findOneAndUpdate(
             { email: req.params.email },
             req.body,
-            { new: true, runValidators: true }
+            { new: true }
         );
-        if (!updatedCustomer) return res.status(404).send({ message: "Customer not found" });
-        res.send({ message: "Customer updated successfully", updatedCustomer });
+        if (!updatedCustomer) return res.status(404).json({ message: 'Customer not found' });
+        res.json({ message: 'Customer updated successfully', customer: updatedCustomer });
     } catch (err) {
-        res.status(400).send({ error: err.message });
+        res.status(400).json({ error: err.message });
     }
 });
 
-// Delete customer by email
-router.delete("/delete/:email", async (req, res) => {
+// Delete Customer by Email
+router.delete('/:email', async (req, res) => {
     try {
         const deletedCustomer = await Customer.findOneAndDelete({ email: req.params.email });
-        if (!deletedCustomer) return res.status(404).send({ message: "Customer not found" });
-        res.send({ message: "Customer deleted successfully" });
+        if (!deletedCustomer) return res.status(404).json({ message: 'Customer not found' });
+        res.json({ message: 'Customer deleted successfully' });
     } catch (err) {
-        res.status(500).send({ error: err.message });
+        res.status(400).json({ error: err.message });
     }
 });
 

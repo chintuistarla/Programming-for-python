@@ -3,34 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Management</title>
     <link rel="stylesheet" href="customer.css">
-    <script src="customer.js" defer></script>
-    <title>Customer Operations</title>
 </head>
 <body>
-    <h1>Customer Operations</h1>
-    <button id="addBtn">Add Customer</button>
-    <button id="editBtn">Edit Customer</button>
-    <button id="deleteBtn">Delete Customer</button>
+    <header>
+        <h1>Customer Management System</h1>
+    </header>
+    <nav>
+        <a href="customer.html">Manage Customers</a>
+        <a href="product.html">Manage Products</a>
+        <a href="orders.html">Manage Orders</a>
+        <a href="billing.html">Manage Billing</a>
+    </nav>
 
-    <div id="formContainer" style="display: none;">
-        <form id="customerForm">
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name" required><br>
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required><br>
-            <label for="age">Age:</label>
-            <input type="number" id="age" name="age"><br>
-            <label for="gender">Gender:</label>
-            <input type="text" id="gender" name="gender"><br>
-            <label for="occupation">Occupation:</label>
-            <input type="text" id="occupation" name="occupation"><br>
-            <label for="address">Address:</label>
-            <input type="text" id="address" name="address"><br>
-            <label for="phone">Phone Number:</label>
-            <input type="text" id="phone" name="phone"><br>
-            <button type="submit">Submit</button>
+    <h1>Customer Management System</h1>
+
+    <section>
+        <h2>Add Customer</h2>
+        <form id="addCustomerForm">
+            <input type="text" id="name" placeholder="Customer Name" required />
+            <input type="email" id="email" placeholder="Customer Email" required />
+            <input type="number" id="age" placeholder="Customer Age" required />
+            <select id="gender" required>
+                <option value="" disabled selected>Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+            </select>
+            <input type="text" id="occupation" placeholder="Occupation" />
+            <textarea id="address" placeholder="Address"></textarea>
+            <input type="text" id="phone" placeholder="Phone Number" required />
+            <button type="submit">Add</button>
         </form>
-    </div>
+    </section>
+
+    <section>
+        <h2>Edit Customer</h2>
+        <form id="editCustomerForm">
+            <input type="email" id="editEmail" placeholder="Enter Customer Email" required />
+            <button type="button" onclick="fetchCustomer()">Fetch Details</button>
+            <div id="editCustomerDetails"></div>
+        </form>
+    </section>
+
+    <section>
+        <h2>Delete Customer</h2>
+        <form id="deleteCustomerForm">
+            <input type="email" id="deleteEmail" placeholder="Enter Customer Email" required />
+            <button type="submit">Delete</button>
+        </form>
+    </section>
+
+    <script src="customer.js"></script>
 </body>
 </html>
