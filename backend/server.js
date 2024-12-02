@@ -21,5 +21,8 @@ app.use('/api/customers', customerRoutes);
 const productRoutes = require('./routes/productRoutes');
 app.use('/api/products', productRoutes);
 
+const orderRoutes = require('./routes/orderRoutes');
+app.use('/api/orders', orderRoutes);
+
 
 app.listen(5000, () => console.log('Server running on http://localhost:5000'));
