@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Customer = require('../models/CustomerModel');
 
-// Create Customer
+// Creating  Customer
 router.post('/', async (req, res) => {
     console.log("Request Body: ", req.body); // Log request body
 
