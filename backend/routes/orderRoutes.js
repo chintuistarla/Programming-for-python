@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Order = require('../models/OrderModel');
 
-// Create Order
+// Creating Order
 router.post('/', async (req, res) => {
     try {
         const orderData = {
