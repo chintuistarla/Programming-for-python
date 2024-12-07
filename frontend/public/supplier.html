@@ -51,7 +51,7 @@
         // API Base URL
         const apiBase = 'http://localhost:5000/api/suppliers';
 
-        // Create Supplier
+        // Creating Supplier
         document.getElementById('createForm').onsubmit = async (e) => {
             e.preventDefault();
             const supplier = {
@@ -68,7 +68,7 @@
             alert((await res.json()).message);
         };
 
-        // Fetch Supplier for Edit
+        // Fetching Supplier for Edit
         async function fetchSupplier() {
             const name = document.getElementById('editName').value;
             const res = await fetch(`${apiBase}/${name}`);
@@ -87,7 +87,7 @@
             }
         }
 
-        // Update Supplier
+        // Updating Supplier
         async function updateSupplier(name) {
             const updatedSupplier = {
                 name: document.getElementById('editSupplierName').value,
@@ -103,7 +103,7 @@
             alert((await res.json()).message);
         }
 
-        // Delete Supplier
+        // Deleting Supplier
         document.getElementById('deleteForm').onsubmit = async (e) => {
             e.preventDefault();
             const name = document.getElementById('deleteName').value;
